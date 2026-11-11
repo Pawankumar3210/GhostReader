@@ -1,0 +1,151 @@
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  backend-api:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      GR_ENVIRONMENT: production
+      GR_SECRET_KEY: "${GR_SECRET_KEY:?Set GR_SECRET_KEY in .env before starting Ghost Reader}"
+      GR_REDIS_URL: redis://redis:6379/0
+      GR_USE_WORKER_QUEUE: "true"
+      GR_STORAGE_DIR: /data/ghost-reader
+      GR_CORS_ORIGINS: "https://${GR_DOMAIN:?Set GR_DOMAIN in .env before starting Ghost Reader}"
+      GR_TRUST_FORWARDED_FOR: "true"
+      GR_TESSERACT_CMD: /usr/bin/tesseract
+      GR_AUTH_PASSWORD_HASH: ""
+    depends_on:
+      redis:
+        condition: service_healthy
+    expose:
+      - "8000"
+    volumes:
+      - ghost-storage:/data/ghost-reader
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/ready', timeout=4)",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+      retries: 5
+
+  backend-worker:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    command: ["python", "-m", "app.workers.worker"]
+    env_file:
+      - .env
+    environment:
+      GR_ENVIRONMENT: production
+      GR_SECRET_KEY: "${GR_SECRET_KEY:?Set GR_SECRET_KEY in .env before starting Ghost Reader}"
+      GR_REDIS_URL: redis://redis:6379/0
+      GR_USE_WORKER_QUEUE: "true"
+      GR_STORAGE_DIR: /data/ghost-reader
+      GR_TESSERACT_CMD: /usr/bin/tesseract
+      GR_AUTH_PASSWORD_HASH: ""
+    depends_on:
+      redis:
+        condition: service_healthy
+      backend-api:
+        condition: service_healthy
+    volumes:
+      - ghost-storage:/data/ghost-reader
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      disable: true
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: "${NEXT_PUBLIC_API_URL-}"
+        NEXT_PUBLIC_SITE_URL: "https://${GR_DOMAIN:?Set GR_DOMAIN in .env before starting Ghost Reader}"
+    restart: unless-stopped
+    depends_on:
+      backend-api:
+        condition: service_healthy
+    expose:
+      - "3000"
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+
+  caddy:
+    image: caddy:2.11.9-alpine
+    restart: unless-stopped
+    depends_on:
+      backend-api:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    environment:
+      GR_DOMAIN: "${GR_DOMAIN:?Set GR_DOMAIN in .env before starting Ghost Reader}"
+      GR_AUTH_USER: "${GR_AUTH_USER:?Set GR_AUTH_USER in .env before starting Ghost Reader}"
+      GR_AUTH_PASSWORD_HASH: "${GR_AUTH_PASSWORD_HASH:?Generate a password hash before starting Ghost Reader}"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    security_opt:
+      - no-new-privileges:true
+
+  prometheus:
+    image: prom/prometheus:v3.16.0
+    restart: unless-stopped
+    depends_on:
+      backend-api:
+        condition: service_healthy
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --web.listen-address=0.0.0.0:9090
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  ghost-storage:
+  caddy-data:
+  caddy-config:
+  prometheus-data:

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" role="img" aria-label="A quiet reading room with a window, a chair and a stack of books">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f0e4ce"/>
+      <stop offset="1" stop-color="#e5d1b2"/>
+    </linearGradient>
+    <linearGradient id="window" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cfd9c9"/>
+      <stop offset="1" stop-color="#94a68e"/>
+    </linearGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="0.4"/></filter>
+  </defs>
+  <rect width="1200" height="640" fill="url(#wall)"/>
+  <rect x="0" y="500" width="1200" height="140" fill="#b98a5d" opacity="0.35"/>
+  <rect x="720" y="70" width="340" height="360" rx="150" fill="#d7bd97" opacity="0.55"/>
+  <rect x="748" y="98" width="284" height="304" rx="126" fill="url(#window)"/>
+  <path d="M748 260c62-34 118-28 168 2s82 27 116 10v130H748Z" fill="#6f8974"/>
+  <circle cx="900" cy="170" r="48" fill="#f4e8cb" opacity="0.8"/>
+  <g filter="url(#soft)">
+    <path d="M140 520V330c0-50 36-84 82-84s82 34 82 84v190Z" fill="#4d6b58"/>
+    <path d="M168 520V338c0-38 22-64 54-64s54 26 54 64v182Z" fill="#3b5345"/>
+    <rect x="120" y="512" width="210" height="22" rx="8" fill="#7d5a3b"/>
+  </g>
+  <g transform="translate(370 330)">
+    <rect x="0" y="80" width="250" height="26" rx="9" fill="#8c5d3d"/>
+    <rect x="24" y="104" width="18" height="112" rx="6" fill="#74482e"/>
+    <rect x="208" y="104" width="18" height="112" rx="6" fill="#74482e"/>
+    <path d="M28 84V40c0-18 14-30 32-30h130c18 0 32 12 32 30v44Z" fill="#b4573a"/>
+    <rect x="20" y="26" width="210" height="24" rx="10" fill="#c46c4a"/>
+    <rect x="38" y="6" width="174" height="32" rx="10" fill="#e4cfa9"/>
+  </g>
+  <g transform="translate(680 420)">
+    <rect x="0" y="52" width="96" height="16" rx="5" fill="#8b6442"/>
+    <rect x="10" y="30" width="80" height="22" rx="5" fill="#ad4f35"/>
+    <rect x="6" y="8" width="92" height="22" rx="5" fill="#425f4d"/>
+    <rect x="14" y="-14" width="76" height="22" rx="5" fill="#c9a252"/>
+    <path d="M48 -14v-56" stroke="#3b5145" stroke-width="4" stroke-linecap="round"/>
+    <path d="M18 -52c16-16 34-18 52-4-12 18-29 22-52 4Z" fill="#456a54"/>
+  </g>
+  <path d="M0 598c198-16 364-15 540 0s410 15 660-2v44H0Z" fill="#a66c48" opacity="0.4"/>
+</svg>

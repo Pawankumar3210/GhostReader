@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560" role="img" aria-label="An abstract editorial landscape with an arch, sun and layered hills">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f3e7d2"/>
+      <stop offset="1" stop-color="#e8d5b8"/>
+    </linearGradient>
+    <linearGradient id="hill1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5d7663"/>
+      <stop offset="1" stop-color="#31483a"/>
+    </linearGradient>
+    <linearGradient id="hill2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c97a55"/>
+      <stop offset="1" stop-color="#a6472c"/>
+    </linearGradient>
+    <linearGradient id="arch" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#faf5ea"/>
+      <stop offset="1" stop-color="#efe3ce"/>
+    </linearGradient>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.035"/></feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="800" height="560" fill="url(#sky)"/>
+  <circle cx="585" cy="158" r="92" fill="#c59a4d" opacity="0.9"/>
+  <path d="M0 372c123-58 219-56 318-22 116 40 206 15 302-36 67-36 126-44 180-37v283H0Z" fill="#8fa08b" opacity="0.7"/>
+  <path d="M0 430c118-58 217-50 326-13 101 34 204 13 292-32 72-37 122-31 182-16v191H0Z" fill="url(#hill1)"/>
+  <path d="M0 492c132-45 236-31 344 0 108 32 198 17 286-27 72-36 122-37 170-25v120H0Z" fill="#24382e"/>
+  <path d="M0 522c151-35 267-19 380 7 93 22 190 12 262-12 64-21 110-22 158-15v58H0Z" fill="url(#hill2)" opacity="0.92"/>
+  <path d="M184 464V282c0-72 52-124 120-124s120 52 120 124v182Z" fill="url(#arch)"/>
+  <path d="M214 464V290c0-58 40-101 90-101s90 43 90 101v174Z" fill="#3f5a4a"/>
+  <path d="M248 464V307c0-40 25-67 56-67s56 27 56 67v157Z" fill="#2a4034"/>
+  <path d="M304 244v220" stroke="#efdfc4" stroke-width="3" opacity="0.55"/>
+  <circle cx="470" cy="322" r="9" fill="#f6ecd9"/>
+  <circle cx="500" cy="352" r="6" fill="#f6ecd9" opacity="0.75"/>
+  <circle cx="530" cy="318" r="4" fill="#f6ecd9" opacity="0.6"/>
+  <g stroke="#233a2f" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.8">
+    <path d="M642 470c3-64 5-116 7-169"/>
+    <path d="M649 367c-24-8-38-28-39-53 25-3 41 11 45 37"/>
+    <path d="M651 394c29-7 47-27 50-54-28-2-47 13-52 40"/>
+  </g>
+  <rect width="800" height="560" filter="url(#grain)" opacity="0.55"/>
+</svg>

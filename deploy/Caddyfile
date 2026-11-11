@@ -1,0 +1,38 @@
+{
+	admin off
+}
+
+{$GR_DOMAIN} {
+	encode zstd gzip
+
+	basic_auth {
+		{$GR_AUTH_USER} {$GR_AUTH_PASSWORD_HASH}
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+		-Server
+	}
+
+	@api path /api/* /docs /docs/* /openapi.json
+	handle @api {
+		reverse_proxy backend-api:8000 {
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+			header_up X-Real-IP {remote_host}
+		}
+	}
+
+	handle {
+		reverse_proxy frontend:3000
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}
