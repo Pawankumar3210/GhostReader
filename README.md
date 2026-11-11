@@ -8,26 +8,42 @@ Ghost Reader turns a public article, a digital newspaper edition, or an uploaded
 
 - **Safe article extraction** — validates schemes, ports and DNS on every redirect, blocks private/loopback/metadata addresses, honours robots.txt, and refuses HTTPS-to-HTTP downgrades.
 - **Transparent access assessment** — classifies public full text, previews, paywalls, login walls, challenges, JavaScript requirements and policy blocks, with evidence attached.
-- **Reader view** — Newsreader/Inter typography, three paper tones, adjustable measure and type size, table of contents, scroll progress and an access report.
-- **Newspaper view** — a broadsheet edition with masthead, decks, columns and print CSS.
+- **Reader view** — Newsreader/Inter typography, shared Paper/Sepia/Night themes, adjustable measure and type size, table of contents, scroll progress and an access report.
+- **Newspaper view** — a broadsheet edition with masthead, decks, columns, matching Paper/Sepia/Night themes and print CSS.
 - **Complete e-paper pages** — discovers every page image exposed by a public newspaper viewer, then presents a thumbnail gallery, keyboard-navigable full-screen reader and print-ready page sequence. AVIF, WebP, JPEG, PNG and GIF delivery is supported through the signed proxy.
+- **Client-side PDF export** — exports every newspaper page in original order with a custom filename and Low, Medium or High quality. The PDF is generated and downloaded entirely in the browser.
+- **Fast Home navigation** — a centered Home control in both reading views returns to the landing page with a short, reduced-motion-aware circle-wipe transition.
 - **Document OCR** — preserves embedded PDF text and runs Tesseract only where a text layer is missing. English and Kannada language packs are supported, with per-page confidence and diagnostics.
 - **Local-first library** — saved editions, searches, tags, notes and JSON backup in IndexedDB. No account and no server-side reading history.
 - **Security Lab** — five local, synthetic scenarios showing the defensive boundaries behind the product.
 - **Optional Redis jobs + browser fallback** — an isolated worker mode for production, disabled by default.
 
+## Reading and export
+
+Both reading views share a single Paper, Sepia and Night theme picker. The choice is stored locally and applies to the reader and the broadsheet. Print output always uses the paper treatment with a white background and dark ink, even when Night is active.
+
+Every e-paper edition also exposes a PDF download next to Print. All pages are prepared in order with a progress indicator, while the reader chrome, article text and controls are excluded. The default filename follows the edition title and date, and `.pdf` is added automatically if it is missing.
+
+| Quality | Image width | Approx. resolution | Best for |
+| --- | --- | --- | --- |
+| Low | 960 px | 116 DPI | Quick reading and smaller attachments |
+| Medium | 1,800 px | 218 DPI | Everyday offline archive |
+| High | Native page pixels | Full detail | Printing and archival copies |
+
+High is selected by default. All three presets preserve the same physical PDF page dimensions. A centered Home control is available in both reading views; on mobile it moves into the top strip, and reduced-motion preferences skip the circle-wipe animation.
+
 ## Principles
 
 1. **Consent by design.** No paywall circumvention, credential replay or challenge solving.
 2. **Evidence on the record.** Access verdicts, extraction notes and OCR diagnostics travel with the edition.
-3. **Local by default.** The library lives in your browser.
+3. **Local by default.** The library lives in your browser, and PDF exports are generated locally without an upload.
 4. **Boring where it matters.** Validation, redirects, signatures, limits and errors are explicit.
 
 ## Architecture
 
 ```
 Browser (Next.js 15)
-  ├── Reader / newspaper / local library (IndexedDB)
+  ├── Reader / newspaper / client-side PDF / local library (IndexedDB)
   ├── Analyze + document workspaces
   └── Security Lab
             │
@@ -250,7 +266,7 @@ npm run test
 npm run test:e2e
 ```
 
-`npm run test:e2e` starts the Next dev server automatically and reuses an existing one locally. The analyze/document integration tests skip themselves when the API is unavailable; the OCR test also skips if Kannada/English Tesseract models are missing. Start the backend before running the full suite.
+`npm run test:e2e` starts the Next dev server automatically and reuses an existing one locally. The analyze/document integration tests skip themselves when the API is unavailable; the OCR test also skips if Kannada/English Tesseract models are missing. The live e-paper test also verifies shared theme switching, exports High and Low quality PDFs, and checks their filenames, page count, page width and relative file size. Start the backend before running the full suite.
 
 To run the suite against the production Compose edge, provide an external URL, credentials, and the public API origin:
 

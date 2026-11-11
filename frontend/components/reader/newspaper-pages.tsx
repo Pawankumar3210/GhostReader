@@ -119,7 +119,7 @@ export function NewspaperPages({
                 referrerPolicy="no-referrer"
                 className="h-auto w-full"
               />
-              <figcaption className="mt-2 text-center text-[9px] font-semibold uppercase tracking-[0.18em] text-[#5b4d3d]">
+              <figcaption className="mt-2 text-center text-[9px] font-semibold uppercase tracking-[0.18em] text-[color:var(--reader-muted)]">
                 {editionTitle} · page {page.page_number} of {pages.length}
               </figcaption>
             </figure>

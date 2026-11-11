@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { expect, test } from "@playwright/test";
@@ -44,7 +45,7 @@ test("uploads an image and returns Kannada + English OCR", async ({ page, reques
 });
 
 test("discovers and renders every public e-paper page", async ({ page, request }) => {
-  test.setTimeout(90_000);
+  test.setTimeout(600_000);
   const response = await request.get(`${BACKEND_URL}/api/v1/health/ready`).catch(() => null);
   test.skip(!response?.ok(), "The Ghost Reader API is not running.");
 
@@ -90,4 +91,67 @@ test("discovers and renders every public e-paper page", async ({ page, request }
     .toBe(true);
   await viewer.getByRole("button", { name: "Next page" }).click();
   await expect(viewer.getByText(`Page 2 of ${pageCount}`)).toBeVisible();
+  await viewer.getByRole("button", { name: "Close page viewer" }).click();
+
+  await page.goto(`/newspaper/${jobId}`);
+  const newspaperRoot = page.locator(".newspaper-root");
+  await expect(newspaperRoot).toHaveAttribute("data-reader-theme", "paper");
+  await page.getByRole("button", { name: "Night" }).click();
+  await expect(newspaperRoot).toHaveAttribute("data-reader-theme", "night");
+  await page.getByRole("button", { name: "Sepia" }).click();
+  await expect(newspaperRoot).toHaveAttribute("data-reader-theme", "sepia");
+  await page.getByRole("button", { name: "Paper" }).click();
+  await expect(newspaperRoot).toHaveAttribute("data-reader-theme", "paper");
+
+  await page.getByRole("button", { name: `Download all ${pageCount} pages as PDF` }).click();
+  const pdfDialog = page.getByRole("dialog");
+  await expect(pdfDialog.getByText(/All \d+ newspaper pages are included/)).toBeVisible();
+  await expect(pdfDialog.getByRole("radio", { name: "High" })).toBeChecked();
+  await pdfDialog.getByLabel("PDF file name").fill("vijay-karnataka-2026-11-10");
+
+  const highDownloadPromise = page.waitForEvent("download", { timeout: 240_000 });
+  await pdfDialog.getByRole("button", { name: "Download PDF" }).click();
+  const highDownload = await highDownloadPromise;
+  expect(highDownload.suggestedFilename()).toBe("vijay-karnataka-2026-11-10.pdf");
+
+  const highDownloadPath = await highDownload.path();
+  expect(highDownloadPath).toBeTruthy();
+  const highBytes = await readFile(highDownloadPath!);
+  expect(highBytes.byteLength).toBeGreaterThan(1_000_000);
+
+  await expect(pdfDialog).toBeHidden();
+  await page.getByRole("button", { name: `Download all ${pageCount} pages as PDF` }).click();
+  await expect(pdfDialog.getByRole("radio", { name: "High" })).toBeChecked();
+  await pdfDialog.getByText("Low", { exact: true }).click();
+  await expect(pdfDialog.getByRole("radio", { name: "Low" })).toBeChecked();
+  await pdfDialog.getByLabel("PDF file name").fill("vijay-karnataka-2026-11-10-low");
+
+  const lowDownloadPromise = page.waitForEvent("download", { timeout: 240_000 });
+  await pdfDialog.getByRole("button", { name: "Download PDF" }).click();
+  const lowDownload = await lowDownloadPromise;
+  expect(lowDownload.suggestedFilename()).toBe("vijay-karnataka-2026-11-10-low.pdf");
+
+  const lowDownloadPath = await lowDownload.path();
+  expect(lowDownloadPath).toBeTruthy();
+  const lowBytes = await readFile(lowDownloadPath!);
+  expect(lowBytes.byteLength).toBeLessThan(highBytes.byteLength * 0.6);
+  expect(lowBytes.byteLength).toBeGreaterThan(100_000);
+  console.log(
+    `PDF export sizes: high=${(highBytes.byteLength / 1024 / 1024).toFixed(1)} MB, low=${(
+      lowBytes.byteLength /
+      1024 /
+      1024
+    ).toFixed(1)} MB`,
+  );
+
+  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  for (const bytes of [highBytes, lowBytes]) {
+    const pdf = await pdfjs.getDocument({ data: new Uint8Array(bytes) }).promise;
+    expect(pdf.numPages).toBe(pageCount);
+    const firstPage = await pdf.getPage(1);
+    const viewport = firstPage.getViewport({ scale: 1 });
+    expect(viewport.width).toBeCloseTo(595.28, 1);
+    expect(viewport.height).toBeGreaterThan(800);
+    await pdf.destroy();
+  }
 });

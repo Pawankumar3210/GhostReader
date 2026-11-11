@@ -333,9 +333,18 @@ body {
   color: var(--reader-accent);
 }
 
+.newspaper-root {
+  background: color-mix(in srgb, var(--reader-bg) 88%, var(--reader-fg) 12%);
+  color: var(--reader-fg);
+}
+
+.newspaper-root[data-reader-theme="night"] {
+  background-image: none;
+}
+
 .newspaper-page {
-  background: #f7f2e8;
-  color: #1e1a14;
+  background: var(--reader-card);
+  color: var(--reader-fg);
 }
 
 .newspaper-masthead {
@@ -346,7 +355,7 @@ body {
 .newspaper-columns {
   column-count: 3;
   column-gap: 2.2rem;
-  column-rule: 1px solid #cbbda8;
+  column-rule: 1px solid var(--reader-rule);
 }
 
 .newspaper-columns p {
@@ -376,6 +385,17 @@ body {
   }
 
   body {
+    background: white !important;
+  }
+
+  .newspaper-root {
+    --reader-bg: #ffffff;
+    --reader-fg: #111111;
+    --reader-soft: #333333;
+    --reader-muted: #555555;
+    --reader-rule: #bbbbbb;
+    --reader-accent: #111111;
+    --reader-card: #ffffff;
     background: white !important;
   }
 
@@ -493,4 +513,105 @@ body {
 .reader-toolbar-button[data-active="true"] {
   background: color-mix(in srgb, var(--reader-accent) 13%, transparent);
   color: var(--reader-accent);
+}
+
+.home-nav-button {
+  display: inline-flex;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 1px solid var(--reader-rule);
+  border-radius: 999px;
+  padding: 0 0.9rem;
+  background: color-mix(in srgb, var(--reader-card) 76%, transparent);
+  color: var(--reader-soft);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  box-shadow: 0 1px 0 rgb(255 255 255 / 20%);
+  transition:
+    transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.home-nav-button:hover {
+  border-color: var(--reader-accent);
+  background: color-mix(in srgb, var(--reader-accent) 8%, var(--reader-card));
+  color: var(--reader-accent);
+  transform: translateY(-1px);
+}
+
+.home-nav-button:active {
+  transform: translateY(0) scale(0.95);
+}
+
+.home-nav-button svg {
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-nav-button:hover svg {
+  transform: translateY(-1px) rotate(-3deg);
+}
+
+.home-nav-button[data-leaving="true"] {
+  animation: home-button-leave 0.36s cubic-bezier(0.4, 0, 1, 1) both;
+  pointer-events: none;
+}
+
+.home-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: var(--reader-bg);
+  color: var(--reader-fg);
+  pointer-events: none;
+  animation: home-transition-in 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.home-transition-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: "Newsreader Variable", Newsreader, Georgia, serif;
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+  animation: home-transition-mark-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.home-transition-mark svg {
+  color: var(--reader-accent);
+}
+
+@keyframes home-button-leave {
+  to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.92);
+  }
+}
+
+@keyframes home-transition-in {
+  from {
+    opacity: 0;
+    clip-path: circle(0% at 50% 0%);
+  }
+  to {
+    opacity: 1;
+    clip-path: circle(150vmax at 50% 0%);
+  }
+}
+
+@keyframes home-transition-mark-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

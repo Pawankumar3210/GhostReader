@@ -3,7 +3,11 @@ import type { SVGProps } from "react";
 
 import { cn } from "@/lib/utils";
 
-export function GhostMark({ className, ...props }: SVGProps<SVGSVGElement>) {
+export function GhostMark({
+  className,
+  detailClassName,
+  ...props
+}: SVGProps<SVGSVGElement> & { detailClassName?: string }) {
   return (
     <svg
       viewBox="0 0 44 44"
@@ -21,14 +25,14 @@ export function GhostMark({ className, ...props }: SVGProps<SVGSVGElement>) {
         stroke="currentColor"
         strokeWidth="2.4"
         strokeLinecap="round"
-        className="text-paper"
+        className={cn("text-paper", detailClassName)}
       />
       <path
         d="M16.8 26.3c1.7 1.7 3.4 2.5 5.2 2.5s3.5-.8 5.2-2.5"
         stroke="currentColor"
         strokeWidth="2.2"
         strokeLinecap="round"
-        className="text-paper"
+        className={cn("text-paper", detailClassName)}
         fill="none"
       />
       <path
@@ -36,7 +40,7 @@ export function GhostMark({ className, ...props }: SVGProps<SVGSVGElement>) {
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
-        className="text-paper/80"
+        className={cn("text-paper/80", detailClassName)}
       />
     </svg>
   );
@@ -67,7 +71,7 @@ export function Logo({
           compact && "size-9",
         )}
       >
-        <GhostMark className="size-[23px]" />
+        <GhostMark className="size-[23px]" detailClassName="text-[#2a130d]" />
       </span>
       <span className="flex flex-col leading-none">
         <span className="font-serif text-[21px] font-medium tracking-[-0.02em]">

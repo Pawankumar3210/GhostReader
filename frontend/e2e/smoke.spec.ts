@@ -47,3 +47,26 @@ test("security lab runs a local defensive scenario when the API is available", a
   await expect(page.getByText("Scenario complete")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText(/SIMULATED HTTP/)).toBeVisible();
 });
+
+test("home control is centered and returns to the landing page from both views", async ({
+  page,
+}) => {
+  for (const route of ["/reader/demo", "/newspaper/demo"]) {
+    await page.goto(route);
+    const home = page.locator(".home-nav-button");
+    await expect(home).toBeVisible();
+
+    const placement = await home.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        center: rect.left + rect.width / 2,
+        viewportCenter: document.documentElement.clientWidth / 2,
+      };
+    });
+    expect(Math.abs(placement.center - placement.viewportCenter)).toBeLessThanOrEqual(1);
+
+    await home.click();
+    await page.waitForURL((url) => url.pathname === "/");
+    await expect(page.getByRole("heading", { name: /Read beyond/ })).toBeVisible();
+  }
+});

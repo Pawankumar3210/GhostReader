@@ -16,7 +16,6 @@ import {
   Quote,
   ScanLine,
   ShieldCheck,
-  Sparkles,
   Sun,
   Type,
 } from "lucide-react";
@@ -139,18 +138,6 @@ export function LandingPage() {
 
         <div className="container-editorial relative grid items-center gap-16 lg:grid-cols-[1.02fr_0.98fr]">
           <div>
-            <motion.div
-              initial={reduce ? false : { opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent-soft/70 px-3 py-1.5"
-            >
-              <Sparkles className="size-3.5 text-accent" />
-              <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-dark">
-                The considered web
-              </span>
-            </motion.div>
-
             <motion.h1
               initial={reduce ? false : { opacity: 0, y: 26 }}
               animate={{ opacity: 1, y: 0 }}

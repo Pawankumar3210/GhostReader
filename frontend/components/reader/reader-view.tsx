@@ -10,30 +10,25 @@ import {
   ExternalLink,
   Info,
   Minus,
-  Moon,
   Newspaper,
   Plus,
   Printer,
   ShieldCheck,
-  Sun,
   Type,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 
 import { AccessBadge, accessTone } from "@/components/reader/access-badge";
+import { HomeButton } from "@/components/reader/home-button";
+import { ReaderThemePicker } from "@/components/reader/reader-theme-picker";
 import { NewspaperPages } from "@/components/reader/newspaper-pages";
+import { NewspaperPdfButton } from "@/components/reader/newspaper-pdf-button";
 import { useLibrary } from "@/components/providers/library-provider";
-import { useReaderPreferences, type ReaderTheme } from "@/hooks/use-reader-preferences";
+import { useReaderPreferences } from "@/hooks/use-reader-preferences";
 import { mediaUrl } from "@/lib/api";
 import { cn, formatDate, hostname } from "@/lib/utils";
 import type { AnalysisResult, ContentBlock } from "@/types/api";
-
-const themes: { value: ReaderTheme; label: string; icon: React.ElementType }[] = [
-  { value: "paper", label: "Paper", icon: Sun },
-  { value: "sepia", label: "Sepia", icon: Sun },
-  { value: "night", label: "Night", icon: Moon },
-];
 
 function headingId(index: number) {
   return `section-${index}`;
@@ -250,96 +245,93 @@ export function ReaderView({
       />
 
       <header className="reader-chrome reader-divider sticky top-0 z-50 border-b">
-        <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between gap-3 px-4 md:px-7">
-          <div className="flex min-w-0 items-center gap-2">
-            <Link href={backHref} className="reader-toolbar-button shrink-0" aria-label={backLabel}>
-              <ArrowLeft className="size-4" />
-              <span className="hidden sm:inline">{backLabel}</span>
-            </Link>
-            <span className="mx-1 hidden h-4 w-px bg-[color:var(--reader-rule)] sm:block" />
-            <div className="min-w-0">
-              {result.publisher && result.publisher !== result.title && (
-                <p className="reader-muted hidden truncate text-[11px] font-medium uppercase tracking-[0.14em] md:block">
-                  {result.publisher}
-                </p>
-              )}
-              <p className="truncate font-serif text-[15px] leading-tight text-[color:var(--reader-fg)]">
-                {result.title ?? "Untitled edition"}
-              </p>
-            </div>
+        <div className="relative mx-auto flex max-w-[1280px] flex-col sm:h-16 sm:flex-row sm:items-center sm:gap-3 sm:px-4 md:px-7">
+          <div className="flex justify-center py-2 sm:absolute sm:left-1/2 sm:top-1/2 sm:z-10 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:py-0">
+            <HomeButton />
           </div>
-
-          <div className="flex shrink-0 items-center gap-1">
-            <button
-              type="button"
-              onClick={toggleSaved}
-              className="reader-toolbar-button"
-              data-active={Boolean(savedArticle)}
-              aria-pressed={Boolean(savedArticle)}
-              title={savedArticle ? "Remove from library" : "Save to library"}
-            >
-              {savedArticle ? (
-                <BookmarkCheck className="size-4" />
-              ) : (
-                <Bookmark className="size-4" />
+          <div className="flex w-full min-w-0 items-center justify-between gap-3 px-4 pb-2 sm:px-0 sm:pb-0">
+            <div className="flex min-w-0 items-center gap-2">
+              {backHref !== "/" && (
+                <>
+                  <Link
+                    href={backHref}
+                    className="reader-toolbar-button shrink-0"
+                    aria-label={backLabel}
+                  >
+                    <ArrowLeft className="size-4" />
+                    <span className="hidden sm:inline">{backLabel}</span>
+                  </Link>
+                  <span className="mx-1 hidden h-4 w-px bg-[color:var(--reader-rule)] sm:block" />
+                </>
               )}
-              <span className="hidden lg:inline">{savedArticle ? "Saved" : "Save"}</span>
-            </button>
-            <button
-              type="button"
-              onClick={copySource}
-              className="reader-toolbar-button"
-              title="Copy source link"
-            >
-              <Copy className="size-4" />
-              <span className="hidden lg:inline">Source</span>
-            </button>
-            {sourceJobId && (
-              <Link
-                href={`/newspaper/${sourceJobId}`}
+              <div className="min-w-0">
+                {result.publisher && result.publisher !== result.title && (
+                  <p className="reader-muted hidden truncate text-[11px] font-medium uppercase tracking-[0.14em] md:block">
+                    {result.publisher}
+                  </p>
+                )}
+                <p className="truncate font-serif text-[15px] leading-tight text-[color:var(--reader-fg)]">
+                  {result.title ?? "Untitled edition"}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-1">
+              <button
+                type="button"
+                onClick={toggleSaved}
                 className="reader-toolbar-button"
-                title="Newspaper view"
+                data-active={Boolean(savedArticle)}
+                aria-pressed={Boolean(savedArticle)}
+                title={savedArticle ? "Remove from library" : "Save to library"}
               >
-                <Newspaper className="size-4" />
-                <span className="hidden lg:inline">Newspaper</span>
-              </Link>
-            )}
-            <button
-              type="button"
-              onClick={() => window.print()}
-              className="reader-toolbar-button"
-              title="Print this edition"
-            >
-              <Printer className="size-4" />
-              <span className="hidden lg:inline">Print</span>
-            </button>
+                {savedArticle ? (
+                  <BookmarkCheck className="size-4" />
+                ) : (
+                  <Bookmark className="size-4" />
+                )}
+                <span className="hidden lg:inline">{savedArticle ? "Saved" : "Save"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={copySource}
+                className="reader-toolbar-button"
+                title="Copy source link"
+              >
+                <Copy className="size-4" />
+                <span className="hidden lg:inline">Source</span>
+              </button>
+              {sourceJobId && (
+                <Link
+                  href={`/newspaper/${sourceJobId}`}
+                  className="reader-toolbar-button"
+                  title="Newspaper view"
+                >
+                  <Newspaper className="size-4" />
+                  <span className="hidden lg:inline">Newspaper</span>
+                </Link>
+              )}
+              <NewspaperPdfButton
+                pages={newspaperPages}
+                title={result.title ?? "Newspaper edition"}
+                publishedAt={result.published_at}
+              />
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="reader-toolbar-button"
+                title="Print this edition"
+              >
+                <Printer className="size-4" />
+                <span className="hidden lg:inline">Print</span>
+              </button>
+            </div>
           </div>
         </div>
 
         <div className="reader-divider border-t">
           <div className="mx-auto flex max-w-[1280px] items-center gap-1 overflow-x-auto px-4 py-2 md:px-7">
-            <div className="flex items-center gap-1" aria-label="Reading theme">
-              {themes.map((theme) => (
-                <button
-                  key={theme.value}
-                  type="button"
-                  onClick={() => update({ theme: theme.value })}
-                  className="reader-chip inline-flex h-8 items-center gap-1.5 rounded-full px-2.5 text-[11px]"
-                  data-active={preferences.theme === theme.value}
-                  title={`${theme.label} theme`}
-                >
-                  <span
-                    className={cn(
-                      "size-2.5 rounded-full border",
-                      theme.value === "paper" && "border-[#d8cbb8] bg-[#f4efe6]",
-                      theme.value === "sepia" && "border-[#c9ad83] bg-[#efe1c8]",
-                      theme.value === "night" && "border-[#4a4238] bg-[#141310]",
-                    )}
-                  />
-                  <span className="hidden sm:inline">{theme.label}</span>
-                </button>
-              ))}
-            </div>
+            <ReaderThemePicker value={preferences.theme} onChange={(theme) => update({ theme })} />
 
             {newspaperPages.length === 0 && (
               <>

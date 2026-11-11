@@ -273,7 +273,7 @@ export function AnalysisJobScreen({ jobId }: { jobId: string }) {
                 </h1>
               </div>
               <div className="relative grid size-16 shrink-0 place-items-center rounded-2xl bg-accent text-white">
-                <GhostMark className="size-9" aria-hidden />
+                <GhostMark className="size-9" detailClassName="text-[#2a130d]" aria-hidden />
                 {!failed && (
                   <span className="absolute inset-0 animate-ping rounded-2xl border border-accent/30" />
                 )}
