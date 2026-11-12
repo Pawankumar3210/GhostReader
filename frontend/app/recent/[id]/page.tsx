@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { RecentHost } from "@/components/reader/recent-host";
 
 export const metadata: Metadata = {
-  title: "Recent edition",
   robots: { index: false, follow: false },
 };
 

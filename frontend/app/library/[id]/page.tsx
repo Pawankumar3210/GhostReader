@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { SavedReaderHost } from "@/components/reader/saved-host";
 
 export const metadata: Metadata = {
-  title: "Saved edition",
   robots: { index: false, follow: false },
 };
 

@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { NewspaperHost } from "@/components/reader/newspaper-host";
 
 export const metadata: Metadata = {
-  title: "Newspaper edition",
   robots: { index: false, follow: false },
 };
 

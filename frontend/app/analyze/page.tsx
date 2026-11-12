@@ -8,7 +8,6 @@ import { PageHeading } from "@/components/ui/page-heading";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "Analyze a page",
   description:
     "Turn a publicly accessible article into a clean Ghost Reader edition. SSRF-hardened fetching, robots-aware, with evidence attached.",
 };

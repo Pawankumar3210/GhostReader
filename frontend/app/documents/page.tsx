@@ -5,7 +5,6 @@ import { DocumentWorkspace } from "@/components/documents/document-workspace";
 import { PageHeading } from "@/components/ui/page-heading";
 
 export const metadata: Metadata = {
-  title: "Documents & OCR",
   description:
     "Extract embedded text from PDFs and run on-server OCR for scans and images in English and Kannada, with explicit diagnostics.",
 };

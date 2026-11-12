@@ -13,10 +13,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  title: {
-    default: "Ghost Reader — Read beyond the noise",
-    template: "%s · Ghost Reader",
-  },
+  title: "Ghost Reader",
   description:
     "Ghost Reader turns publicly accessible web pages and your own documents into calm, legible reading editions — with a transparent Security Lab.",
   keywords: [

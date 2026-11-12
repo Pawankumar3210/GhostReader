@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { AnalysisJobScreen } from "@/components/analyze/analysis-job-screen";
 
 export const metadata: Metadata = {
-  title: "Preparing your edition",
   robots: { index: false, follow: false },
 };
 

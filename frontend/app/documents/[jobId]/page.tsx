@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { DocumentJobScreen } from "@/components/documents/document-job-screen";
 
 export const metadata: Metadata = {
-  title: "Document session",
   robots: { index: false, follow: false },
 };
 

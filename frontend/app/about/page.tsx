@@ -23,7 +23,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export const metadata: Metadata = {
-  title: "Methodology & ethics",
   description:
     "How Ghost Reader retrieves, extracts and presents public web content — including its access taxonomy, security model, OCR diagnostics and explicit limits.",
 };
