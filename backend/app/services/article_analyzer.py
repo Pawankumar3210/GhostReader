@@ -15,7 +15,11 @@ from app.services.access_assessor import AccessAssessor, page_has_password_form
 from app.services.article_extractor import ArticleExtraction, ArticleExtractor
 from app.services.browser_renderer import BrowserRenderer
 from app.services.metadata_extractor import MetadataExtractor, PageMetadata
-from app.services.newspaper_extractor import NewspaperExtraction, NewspaperExtractor
+from app.services.newspaper_extractor import (
+    NewspaperExtraction,
+    NewspaperExtractor,
+    NewspaperSourceResolver,
+)
 from app.services.page_classifier import PageClassifier
 from app.services.robots_policy import RobotsPolicy
 from app.services.safe_fetcher import FetchResult, SafeFetcher
@@ -55,6 +59,7 @@ class ArticleAnalyzer:
         self.signer = signer
         self.renderer = renderer
         self.newspaper_extractor = NewspaperExtractor(max_pages=settings.max_newspaper_pages)
+        self.newspaper_sources = NewspaperSourceResolver(fetcher, max_pages=settings.max_newspaper_pages)
 
     async def analyze(
         self,
@@ -151,6 +156,15 @@ class ArticleAnalyzer:
         newspaper = NewspaperExtraction()
         if classification.page_type == PageType.NEWSPAPER_VIEWER:
             newspaper = self.newspaper_extractor.extract(html, base_url=response.final_url or validated.url)
+            if not newspaper.pages:
+                await stage("Resolving the publisher's public page index", 0.5)
+                try:
+                    resolved = await self.newspaper_sources.resolve(response.final_url or validated.url)
+                except Exception:  # pragma: no cover - defensive
+                    logger.exception("public newspaper source resolution failed")
+                    resolved = None
+                if resolved is not None:
+                    newspaper = resolved
         extraction = self.article_extractor.extract(
             html, base_url=response.final_url or validated.url, title=metadata.title
         )
@@ -166,7 +180,7 @@ class ArticleAnalyzer:
         fetched_via = "http"
         notes: list[str] = list(extraction.notes)
 
-        if assessment.status == AccessStatus.JS_REQUIRED:
+        if assessment.status == AccessStatus.JS_REQUIRED and not (newspaper.source and newspaper.pages):
             if not self.settings.enable_browser_fallback:
                 notes.append(
                     "JavaScript rendering is disabled in this deployment. Only the publicly delivered HTML was assessed."
@@ -228,8 +242,13 @@ class ArticleAnalyzer:
             AccessStatus.LOGIN_REQUIRED,
         }
         include_content = assessment.status in content_statuses
+        known_public_pages = newspaper.source is not None and assessment.status in {
+            AccessStatus.UNSUPPORTED,
+            AccessStatus.JS_REQUIRED,
+        }
+        include_newspaper = bool(newspaper.pages) and (include_content or known_public_pages)
         newspaper_pages: list[NewspaperPage] = []
-        if newspaper.pages and include_content:
+        if newspaper.pages and include_newspaper:
             newspaper_pages = self._sign_newspaper_pages(newspaper.pages)
             confidence = (
                 Confidence.HIGH
@@ -254,12 +273,12 @@ class ArticleAnalyzer:
                 ),
                 evidence=evidence,
             )
-            notes.extend(newspaper.notes)
         elif newspaper.pages:
             notes.append(
-                "Newspaper pages were present in the viewer HTML, but they were withheld because "
-                "the access assessment did not confirm public content."
+                "Newspaper pages were discovered, but they were withheld because the access "
+                "assessment did not confirm public content."
             )
+        notes.extend(newspaper.notes)
         if assessment.status not in content_statuses:
             blocks = []
             images = []
@@ -282,11 +301,14 @@ class ArticleAnalyzer:
         title = metadata.title
         published_at = metadata.published_at
         if newspaper_pages:
+            publication = None
             if newspaper.publication:
                 publication = self._tidy_publication(newspaper.publication)
                 if not publisher or "." in publisher:
                     publisher = publication
             title = self._tidy_newspaper_title(title)
+            if not title or title.strip().isdigit():
+                title = publication or publisher
             published_at = published_at or newspaper.edition_date
         source_metadata = metadata.as_source_metadata()
         source_metadata.update(
@@ -307,6 +329,8 @@ class ArticleAnalyzer:
             source_metadata["newspaper_page_count"] = len(newspaper_pages)
             if newspaper.publication:
                 source_metadata["newspaper_publication"] = newspaper.publication
+            if newspaper.source:
+                source_metadata["newspaper_source"] = newspaper.source
             if newspaper.reported_page_count is not None:
                 source_metadata["newspaper_reported_page_count"] = newspaper.reported_page_count
             if newspaper.edition_date:

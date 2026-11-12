@@ -32,6 +32,19 @@ Every e-paper edition also exposes a PDF download next to Print. All pages are p
 
 High is selected by default. All three presets preserve the same physical PDF page dimensions. A centered Home control is available in both reading views; on mobile it moves into the top strip, and reduced-motion preferences skip the circle-wipe animation.
 
+## Public e-paper sources
+
+Ghost Reader includes page discovery for publicly delivered editions from these publishers:
+
+| Publisher | Viewer pattern | Discovery |
+| --- | --- | --- |
+| Vijay Karnataka | `vijaykarnatakaepaper.com/vijay-karnataka?pgdate=YYYY-MM-DD` | Public viewer image attributes |
+| The Telegraph | `epaper.telegraphindia.com/<edition>/<id>/YYYY-MM-DD/page-N.html` | Public thumbnails upgraded to full page images |
+| Hindustan Times | `epaper.hindustantimes.com/edition/<city>?date=YYYY-MM-DD&page=1` | Public edition manifest embedded in the viewer |
+| Kannada Prabha | `kpepaper.asianetnews.com/edition/<city>/<edition-id>/page/1` | Public JSON issue index exposed by the viewer |
+
+Vijayavani uses the same public JSON viewer as Kannada Prabha, but its viewer currently returns a Cloudflare access challenge. Ghost Reader reports that challenge and withholds the pages instead of evading it. Other e-papers are supported only when they expose full page images in public HTML or a public page manifest.
+
 ## Principles
 
 1. **Consent by design.** No paywall circumvention, credential replay or challenge solving.
@@ -288,7 +301,7 @@ Add `PLAYWRIGHT_IGNORE_HTTPS_ERRORS=1` for the `localhost` internal certificate.
 - Redirect count, response size, time and content type are bounded.
 - `robots.txt` is fetched and enforced before page retrieval.
 - Images are fetched only through signed, expiring proxy URLs, re-validated as JPEG/PNG/WebP/AVIF/GIF, and size/pixel bounded.
-- Newspaper page discovery only uses image URLs already exposed by the publisher's public viewer; no login, paywall or viewer token is bypassed.
+- Newspaper page discovery only uses page image URLs or public page manifests already exposed by the publisher's viewer; no login, paywall, viewer token or anti-bot challenge is bypassed.
 - Metadata such as JSON-LD `articleBody` is used as evidence, never as free article text.
 - Access-protected pages are reported, not circumvented.
 - Uploaded files are size/page/pixel bounded, validated, and short-lived.

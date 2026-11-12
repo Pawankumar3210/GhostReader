@@ -35,6 +35,10 @@ _DIGITAL_VIEWER_HOSTS = (
     "anyflip",
     "yumpu",
     "pressreader",
+    "epaper.hindustantimes.com",
+    "epaper.telegraphindia.com",
+    "epaper.vijayavani.net",
+    "kpepaper.asianetnews.com",
 )
 _VIEWER_MARKERS = (
     "epaper",
